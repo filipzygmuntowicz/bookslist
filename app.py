@@ -17,7 +17,7 @@ if ENV == 'dev':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres123@localhost/books_page'
 else:
     app.debug = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://bpyhmblqncxcfz:d1eb1b543181ce0e7c5e4b4bc750bba919d27ffb89486fcf51d128a32535c314@ec2-54-80-122-11.compute-1.amazonaws.com:5432/d3c9ooetnktt5n'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://bpyhmblqncxcfz:d1eb1b543181ce0e7c5e4b4bc750bba919d27ffb89486fcf51d128a32535c314@ec2-54-80-122-11.compute-1.amazonaws.com:5432/d3c9ooetnktt5n'
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
