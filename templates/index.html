@@ -80,13 +80,13 @@ const sq = '{{searchq}}'
 console.log(sq)
 if (sq == "")
 {
-  fetch('http://127.0.0.1:5000/api/bookslist')
+  fetch('https://bookslistzygmuntowicz.herokuapp.com/api/bookslist')
   .then(res => res.json())
   .then(data => createTable(data))
 }
 else
 {
-  fetch('http://127.0.0.1:5000/api/bookslist/search/'+sq)
+  fetch('https://bookslistzygmuntowicz.herokuapp.com/api/bookslist/search/'+sq)
   .then(res => res.json())
   .then(data => createTable(data))
 }
