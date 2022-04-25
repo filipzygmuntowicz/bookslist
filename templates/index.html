@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+
+<html>
+<style>
+table, th, td {
+  border:1px solid black;
+}
+</style>
+
+<body>
+  <form action="/search/title" method = "POST">
+    <div class="form-group">
+      <h3>Search by title</h3>
+      <input
+        type="text"
+        name="title"
+        placeholder="title of the book"
+    />
+    </div>
+  </form>
+
+  <form action="/search/author" method = "POST">
+    <div class="form-group">
+      <h3>Search by author</h3>
+      <input
+        type="text"
+        name="author"
+        placeholder="author of the book"
+    />
+    </div>
+  </form>
+
+  <form action="/search/language" method = "POST">
+    <div class="form-group">
+      <h3>Search by language</h3>
+      <input
+        type="text"
+        name="language"
+        placeholder="language of the book"
+    />
+    </div>
+  </form>
+
+  <form action="/search/date" method = "POST">
+    <div class="form-group">
+      <h3>Search by date</h3>
+      <input
+        type="text"
+        name="date1"
+        placeholder="from date (dd-mm-rrrr)"
+    />
+    </div>
+    <div class="form-group">
+      <input
+        type="text"
+        name="date2"
+        placeholder="to date (dd-mm-rrrr)"
+    />
+    </div>
+    <input type="submit" hidden />
+  </form>
+
+<h1> </h1>
+
+<table id = "books">
+<tr> 
+  <th>ISBN</th>
+  <th>Title</th>
+  <th>Author</th>
+  <th>Pages</th>
+  <th>Cover</th>
+  <th>Language</th>
+  <th>Date of publication</th>
+</tr>
+</table>
+</body>
+
+<script>
+const sq = '{{searchq}}'
+console.log(sq)
+if (sq == "")
+{
+  fetch('http://127.0.0.1:5000/api/bookslist')
+  .then(res => res.json())
+  .then(data => createTable(data))
+}
+else
+{
+  fetch('http://127.0.0.1:5000/api/bookslist/search/'+sq)
+  .then(res => res.json())
+  .then(data => createTable(data))
+}
+function createCell(text, r){
+  const cell = document.createElement("TD");
+  const cellText = document.createTextNode(text);
+  cell.appendChild(cellText);
+  r.appendChild(cell);
+}
+function createTable(data){
+  for (let i = 0; i < data.length; i++){
+    const row = document.createElement("TR");
+    Object.values(data[i]).forEach(value => createCell(value, row))
+    document.getElementById("books").appendChild(row);
+  }
+}
+
+</script>
+</html>
