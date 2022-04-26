@@ -35,6 +35,7 @@
 <script>
 
 let sq = JSON.parse('{{dataq | tojson | safe}}').necessery
+console.log(sq)
 sq = sq.map(p => [p.ISBN, p.Title, p.Author, p.noOfPages, p.Cover, p.Language, p.dateOfPublication])
 console.log(sq)
 createTable(sq)

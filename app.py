@@ -10,7 +10,7 @@ configHeroku = open('configheroku.txt', 'r').read()
 
 app = Flask(__name__)
 api = Api(app)
-ENV = 'dev'
+ENV = 'prod'
 
 if ENV == 'dev':
     app.debug = True
@@ -33,7 +33,10 @@ class Books(db.Model):
     Language = db.Column(db.String(200))
     dateOfPublication = db.Column(db.String(15))
 
-    def __init__(self, ISBN, Title, Author, dateOfPublication, noOfPages, Cover, Language):
+    def __init__(
+            self, ISBN, Title,
+            Author, dateOfPublication, noOfPages, Cover, Language
+                ):
         self.ISBN = ISBN
         self.Title = Title
         self.Author = Author
@@ -51,7 +54,7 @@ def keyNoExistHandle(dict, key):
 
 
 def requestFromGoogleBooks(query):
-    books=[]
+    books = []
     http = "https://www.googleapis.com/books/v1/volumes"
     data = requests.get(http+query)
     data = data.json()
@@ -65,7 +68,9 @@ def requestFromGoogleBooks(query):
                 Cover = thumbnails["smallThumbnail"]
             else:
                 Cover = "missing data"
-            dateOfPublication = keyNoExistHandle(x["volumeInfo"], "publishedDate")
+            dateOfPublication = keyNoExistHandle(
+                        x["volumeInfo"], "publishedDate"
+                                                )
             Language = keyNoExistHandle(x["volumeInfo"], "language")
             ISBN = keyNoExistHandle(x["volumeInfo"], "industryIdentifiers")
             if Author == "missing data":
@@ -75,20 +80,25 @@ def requestFromGoogleBooks(query):
                     if x["type"] == "ISBN_13":
                         ISBN = x["identifier"]
                         break
-            if isinstance(ISBN, str) == False:
+            if isinstance(ISBN, str) is False:
                 for x in ISBN:
                     if x["type"] == "OTHER":
                         ISBN = x["identifier"]
                         break
             books.append({
-                        "ISBN": ISBN,
-                        "Title": Title,
-                        "Author": ', '.join([str(item) for item in Author]),
-                        "noOfPages": noOfPages,
-                        "Cover": Cover,
-                        "Language": Language,
-                        "dateOfPublication": dateOfPublication}
-                        )
+                        "ISBN": str(ISBN).replace('"', '').replace("'", ""),
+                        "Title": str(Title).replace('"', '').replace("'", ""),
+                        "Author": ', '.join(
+                            [str(item).replace(
+                                '"', '').replace("'", "") for item in Author]
+                            ),
+                        "noOfPages": str(noOfPages).replace(
+                            '"', '').replace("'", ""),
+                        "Cover": str(Cover).replace('"', '').replace("'", ""),
+                        "Language": str(Language).replace('"', '').replace(
+                            "'", ""),
+                        "dateOfPublication": str(dateOfPublication).replace(
+                            '"', '').replace("'", "")})
     return books
 
 
@@ -96,7 +106,10 @@ def addToDataBaseFromJSON(jsonData):
     for x in jsonData:
         print(x["dateOfPublication"].strftime("%m/%d/%Y"))
         print(x["Author"])
-        data = Books(x["ISBN"], x["Title"], x["Author"], x["dateOfPublication"], x["noOfPages"], x["Cover"], x["Language"])
+        data = Books(
+            x["ISBN"], x["Title"], x["Author"], x["dateOfPublication"],
+            x["noOfPages"], x["Cover"], x["Language"]
+                    )
         db.session.add(data)
         db.session.commit()
 
@@ -122,7 +135,9 @@ class booksList(Resource):
 
 class booksListSearch(Resource):
     def get(self):
-        acceptable = ["ISBN",  "title", "language",  "author", "date1", "date2"]
+        acceptable = [
+            "ISBN",  "title", "language",  "author", "date1", "date2"
+            ]
         args = request.args
         data = []
         for book in Books.query.all():
@@ -141,7 +156,9 @@ class booksListSearch(Resource):
                 tempdata = []
                 if arg.lower() != "date1" and arg.lower() != "date2":
                     for book in data:
-                        if args.get(arg).lower() in book[arg.capitalize()].lower():
+                        if args.get(arg).lower() in book[
+                                arg.capitalize()
+                                                    ].lower():
                             tempdata.append(book)
                     datas.append(tempdata)
                 else:
@@ -159,15 +176,21 @@ class booksListSearch(Resource):
                         if book["dateOfPublication"] == "missing data":
                             data3.append(book)
                         elif len(book["dateOfPublication"]) == 4:
-                            relDate = datetime.strptime(book["dateOfPublication"]+"-01-01", '%Y-%M-%d')
+                            relDate = datetime.strptime(
+                                book["dateOfPublication"]+"-01-01", '%Y-%M-%d'
+                                )
                             if relDate >= date1 and relDate <= date2:
                                 data2.append(book)
                         elif len(book["dateOfPublication"]) == 7:
-                            relDate = datetime.strptime(book["dateOfPublication"]+"-01", '%Y-%M-%d')
+                            relDate = datetime.strptime(
+                                book["dateOfPublication"]+"-01", '%Y-%M-%d'
+                                )
                             if relDate >= date1 and relDate <= date2:
                                 data2.append(book)
                         elif len(book["dateOfPublication"]) == 12:
-                            relDate = datetime.strptime(book["dateOfPublication"], '%Y-%M-%d')
+                            relDate = datetime.strptime(
+                                book["dateOfPublication"], '%Y-%M-%d'
+                                )
                             if relDate >= date1 and relDate <= date2:
                                 data2.append(book)
                     datas.append(data2 + data3)
@@ -189,6 +212,8 @@ api.add_resource(booksListSearch, "/api/bookslist/search")
 @app.route("/proba")
 def proba():
     return render_template('proba.html')
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -199,7 +224,9 @@ def editbook():
     return render_template('edit_form.html')
 
 
-@app.route('/edited', methods = ['POST'])
+@app.route(
+    '/edited', methods=['POST']
+    )
 def edited():
     if request.method == "POST":
         args = {
@@ -267,7 +294,8 @@ def googleapisearchresuls():
             if d["ISBN"] not in data2:
                 data3.append(d)
         datafinal = {"necessery": data3}
-    return render_template('import_final_step.html',  dataq = datafinal)
+        print(datafinal)
+    return render_template('import_final_step.html',  dataq=datafinal)
 
 
 @app.route('/imported', methods=['POST'])
@@ -277,7 +305,10 @@ def imported():
         data = requestFromGoogleBooks("?q=isbn:"+isbn)
         for x in data:
             if x["ISBN"] == isbn:
-                bookToAdd = Books(x["ISBN"], x["Title"], x["Author"], x["dateOfPublication"], x["noOfPages"], x["Cover"], x["Language"])
+                bookToAdd = Books(
+                    x["ISBN"], x["Title"], x["Author"], x["dateOfPublication"],
+                    x["noOfPages"], x["Cover"], x["Language"]
+                    )
                 db.session.add(bookToAdd)
                 db.session.commit()
                 break
@@ -287,7 +318,12 @@ def imported():
 @app.route('/added', methods=['POST'])
 def added():
     if request.method == "POST":
-        data = Books(request.form["ISBN"], request.form["title"], request.form["author"], request.form["dateofpublication"], request.form["noofpages"], request.form["cover"], request.form["language"])
+        data = Books(
+            request.form["ISBN"], request.form["title"],
+            request.form["author"], request.form["dateofpublication"],
+            request.form["noofpages"], request.form["cover"],
+            request.form["language"]
+        )
         db.session.add(data)
         db.session.commit()
     return redirect(url_for('addbook'))
