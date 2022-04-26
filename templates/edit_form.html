@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+
+<body>
+    <a href="/">Main page</a>
+    <div class="container">
+        <h1>Type in the ISBN of the book you wish to edit</h1>
+        <form action="/edited" method="POST">
+          <div class="fields">
+            <span>
+             <input placeholder="ISBN" type="text" name="ISBN" />
+          </span>
+         <br />
+        <h1>Type in the new infomations in the sections you wish to edit</h1>
+         <br />
+          <span>
+            <input placeholder="title of the book" type="text" name="title"/>
+         </span>
+         <br />
+          <span>
+            <input placeholder="book author" type="text" name="author"/>
+         </span>
+         <br />
+          <span>
+            <input placeholder="number of pages" type="text" name="noofpages"/>
+         </span>
+         <br />
+          <span>
+            <input placeholder="link to the book cover" type="text" name="cover"/>
+         </span>
+         <br />
+         <span>
+           <input placeholder="language of the book" type="text" name="language"/>
+        </span>
+        <br />
+          <span>
+            <input placeholder="date of publication (dd-mm-rrrr)" type="text" name="dateofpublication"/>
+         </span>
+         </div>
+         <div class="submit">
+           <input class="submit" value="Edit" type="submit" />
+         </div>
+
+
+        </form>
+      </div>
+</html>

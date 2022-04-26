@@ -1,0 +1,54 @@
+<html>
+<head>
+	<title>Friends</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+  <script>
+    function copyStringToClipboard (str) {
+      var el = document.createElement('textarea');
+      el.value = str;
+      el.setAttribute('readonly', '');
+      el.style = {position: 'absolute', left: '-9999px'};
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <h1>Dodaj swój kod</h1>
+    <form action="index.php" method="post">
+      <div class="fields">
+        <span>
+         <input placeholder="Nick" type="text" name="name" />
+      </span>
+      <br />
+       <span>
+         <input placeholder="0000 0000 0000" type="text" name="code"/>
+      </span>
+      </div>
+      <div class="submit">
+        <input class="submit" value="Dodaj" type="submit" />
+      </div>
+    </form>
+  </div>
+  <br>
+  <table class="table-fill">
+  <thead>
+  <tr>
+  <th class="text-left">Nick</th>
+  <th class="text-left">Kod</th>
+  <th class="text-left">Dodano</th>
+  <th class="text-left">Kopiuj</th>
+  </tr>
+  </thead>
+  <tbody class="table-hover">
+  </tbody>
+  </table>
+
+
+</script>
+
+</body>
+</html>

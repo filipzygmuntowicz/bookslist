@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+
+<html>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+
+
+
+<table id = "books">
+<tr> 
+  <th>ISBN</th>
+  <th>Title</th>
+  <th>Author</th>
+  <th>Pages</th>
+  <th>Cover</th>
+  <th>Language</th>
+  <th>Date of publication</th>
+</tr>
+</table>
+</body>
+
+<script>
+const sq = '{{dataq | tojson | safe}}'
+console.log(sq)
+fetch(sq)
+  .then(res => res.json())
+  .then(data => createTable(data))
+function createCell(text, r){
+  const cell = document.createElement("TD");
+  const cellText = document.createTextNode(text);
+  cell.appendChild(cellText);
+  r.appendChild(cell);
+}
+function createTable(data){
+  for (let i = 0; i < data.length; i++){
+    const row = document.createElement("TR");
+    Object.values(data[i]).forEach(value => createCell(value, row))
+    document.getElementById("books").appendChild(row);
+  }
+}
+
+
+
+</script>
+</html>

@@ -1,64 +1,40 @@
 <!DOCTYPE html>
 
 <html>
-<style>
-table, th, td {
-  border:1px solid black;
-}
-</style>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
 
 <body>
-  <form action="/search/title" method = "POST">
-    <div class="form-group">
-      <h3>Search by title</h3>
-      <input
-        type="text"
-        name="title"
-        placeholder="title of the book"
-    />
-    </div>
-  </form>
+    <a href="/add">Add a book</a> &nbsp; <a href="/edit">Edit a book</a> &nbsp; <a href="/import">Import a book from googlebooks api</a>
 
-  <form action="/search/author" method = "POST">
-    <div class="form-group">
-      <h3>Search by author</h3>
-      <input
-        type="text"
-        name="author"
-        placeholder="author of the book"
-    />
-    </div>
-  </form>
-
-  <form action="/search/language" method = "POST">
-    <div class="form-group">
-      <h3>Search by language</h3>
-      <input
-        type="text"
-        name="language"
-        placeholder="language of the book"
-    />
-    </div>
-  </form>
-
-  <form action="/search/date" method = "POST">
-    <div class="form-group">
-      <h3>Search by date</h3>
-      <input
-        type="text"
-        name="date1"
-        placeholder="from date (dd-mm-rrrr)"
-    />
-    </div>
-    <div class="form-group">
-      <input
-        type="text"
-        name="date2"
-        placeholder="to date (dd-mm-rrrr)"
-    />
-    </div>
-    <input type="submit" hidden />
-  </form>
+    <div class="container">
+        <h1></h1>
+        <form action="/search" method="POST">
+          <div class="fields">
+           <span>
+             <input placeholder="title of the book" type="text" name="title"/>
+          </span>
+          <br />
+           <span>
+             <input placeholder="book author" type="text" name="author"/>
+          </span>
+          <br />
+          <span>
+            <input placeholder="language of the book" type="text" name="language"/>
+         </span>
+         <br />
+           <span>
+             <input placeholder="from date (dd-mm-rrrr)" type="text" name="date1"/>
+          </span>
+          <br />
+           <span>
+             <input placeholder="to date (dd-mm-rrrr)" type="text" name="date2"/>
+          </span>
+          </div>
+          <div class="submit">
+            <input class="submit" value="Search" type="submit" />
+          </div>
+        </form>
+      </div>
 
 <h1> </h1>
 
@@ -76,17 +52,17 @@ table, th, td {
 </body>
 
 <script>
-const sq = '{{searchq}}'
+const sq = '{{searchq}}'.replace("amp;","").replace("amp;","").replace("amp;","").replace("amp;","").replace("amp;","")
 console.log(sq)
 if (sq == "")
 {
-  fetch('https://bookslistzygmuntowicz.herokuapp.com/api/bookslist')
+  fetch('/api/bookslist')
   .then(res => res.json())
   .then(data => createTable(data))
 }
 else
 {
-  fetch('https://bookslistzygmuntowicz.herokuapp.com/api/bookslist/search/'+sq)
+  fetch('/api/bookslist/search'+sq)
   .then(res => res.json())
   .then(data => createTable(data))
 }

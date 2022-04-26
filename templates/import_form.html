@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+
+<body>
+    <a href="/">Main page</a>
+    <div class="container">
+        <h1>Type in the data to search in googlebooks api (fields that remain empty are ignored)</h1>
+        <form action="/imported" method="POST">
+          <div class="fields">
+            <span>
+             <input placeholder="ISBN" type="text" name="ISBN" />
+          </span>
+          <br />
+           <span>
+             <input placeholder="title of the book" type="text" name="title"/>
+          </span>
+          <br />
+           <span>
+             <input placeholder="book author" type="text" name="author"/>
+          </span>
+          <br />
+           <span>
+             <input placeholder="number of pages" type="text" name="noofpages"/>
+          </span>
+          <br />
+           <span>
+             <input placeholder="link to the book cover" type="text" name="cover"/>
+          </span>
+          <br />
+          <span>
+            <input placeholder="language of the book" type="text" name="language"/>
+         </span>
+         <br />
+           <span>
+             <input placeholder="date of publication (dd-mm-rrrr)" type="text" name="dateofpublication"/>
+          </span>
+          </div>
+          <div class="submit">
+            <input class="submit" value="Add" type="submit" />
+          </div>
+        </form>
+      </div>
+</html>
