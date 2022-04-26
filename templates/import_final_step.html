@@ -19,11 +19,9 @@
 </body>
 
 <script>
-const sq = '{{dataq | tojson | safe}}'
+const sq = '{{dataq}}'
 console.log(sq)
-fetch(sq)
-  .then(res => res.json())
-  .then(data => createTable(data))
+createTable(sq)
 function createCell(text, r){
   const cell = document.createElement("TD");
   const cellText = document.createTextNode(text);

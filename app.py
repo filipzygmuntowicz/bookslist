@@ -8,7 +8,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 api = Api(app)
-ENV = 'prod'
+ENV = 'dev'
 
 if ENV == 'dev':
     app.debug = True
@@ -254,7 +254,8 @@ def imported():
         if args[key] != "":
             query = query +  args[key] + "+"
     query = query[:-1]
-    data = requestFromGoogleBooks(query)
+    data = str(requestFromGoogleBooks(query))
+    #return data
     return render_template('import_final_step.html', dataq=data)
 
 
