@@ -11,9 +11,9 @@ configHeroku = open('configheroku.txt', 'r').read()
 app = Flask(__name__)
 app.secret_key = "don't tell anyone"
 api = Api(app)
-ENV = 'dev'
+ENV = 'prod'
 
-if ENV == 'dev':
+if ENV == 'prod':
     app.debug = True
     app.config['SQLALCHEMY_DATABASE_URI'] = configLocal
 else:
