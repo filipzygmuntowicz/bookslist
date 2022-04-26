@@ -5,6 +5,13 @@
 
 <body>
     <a href="/">Main page</a>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <h3>{{ message }}</h3>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
     <div class="container">
         <h1>Type in the ISBN of the book you wish to edit</h1>
         <form action="/edited" method="POST">

@@ -1,5 +1,5 @@
 import requests
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource
 import json
@@ -9,8 +9,9 @@ configLocal = open('configlocal.txt', 'r').read()
 configHeroku = open('configheroku.txt', 'r').read()
 
 app = Flask(__name__)
+app.secret_key = "don't tell anyone"
 api = Api(app)
-ENV = 'prod'
+ENV = 'dev'
 
 if ENV == 'dev':
     app.debug = True
@@ -236,22 +237,30 @@ def edited():
             "Language": request.form["language"],
             "dateOfPublication": request.form["dateofpublication"]
         }
-        book = Books.query.filter_by(ISBN=args["ISBN"]).first()
-        for key in args.keys():
-            if args[key] != "":
-                if key == "Title":
-                    book.Title = args[key]
-                if key == "Author":
-                    book.Author = args[key]
-                if key == "noOfPages":
-                    book.noOfPages = args[key]
-                if key == "Cover":
-                    book.Cover = args[key]
-                if key == "Language":
-                    book.Language = args[key]
-                if key == "dateOfPublication":
-                    book.dateOfPublication = args[key]
-        db.session.commit()
+        if (request.form["ISBN"] != "" and request.form["title"] != "" and
+            request.form["author"] != "" and
+                request.form["dateofpublication"] != "" and
+                request.form["noofpages"] != "" and
+                request.form["cover"] != "" and
+                request.form["language"] != ""):
+            book = Books.query.filter_by(ISBN=args["ISBN"]).first()
+            for key in args.keys():
+                if args[key] != "":
+                    if key == "Title":
+                        book.Title = args[key]
+                    if key == "Author":
+                        book.Author = args[key]
+                    if key == "noOfPages":
+                        book.noOfPages = args[key]
+                    if key == "Cover":
+                        book.Cover = args[key]
+                    if key == "Language":
+                        book.Language = args[key]
+                    if key == "dateOfPublication":
+                        book.dateOfPublication = args[key]
+            db.session.commit()
+        else:
+            flash('You have left an empty field! Fill it and try again.')
     return redirect(url_for('editbook'))
 
 
@@ -270,19 +279,19 @@ def googleapisearchresuls():
     datafinal = []
     if request.method == "POST":
         args = {
-            "ISBN": request.form["ISBN"],
+            "anything": request.form["anything"],
+            "isbn": request.form["isbn"],
             "Title": request.form["title"],
             "Author": request.form["author"],
-            "noOfPages": request.form["noofpages"],
-            "Cover": request.form["cover"],
-            "Language": request.form["language"],
-            "dateOfPublication": request.form["dateofpublication"]
         }
         query = "?q="
+        if args["anything"] != "":
+            query = query + args["anything"] + "+"
         for key in args.keys():
-            if args[key] != "":
-                query = query + args[key] + "+"
-        query = query[:-1]
+            if key != "anything" and args[key] != "":
+                query = query + key + "=" + args[key] + "&"
+        if query[-1] in ["=", "&"]:
+            query = query[:-1]
         data = requestFromGoogleBooks(query)
         data2 = []
         for book in Books.query.all():
@@ -292,7 +301,6 @@ def googleapisearchresuls():
             if d["ISBN"] not in data2:
                 data3.append(d)
         datafinal = {"necessery": data3}
-        print(datafinal)
     return render_template('import_final_step.html',  dataq=datafinal)
 
 
@@ -322,8 +330,17 @@ def added():
             request.form["noofpages"], request.form["cover"],
             request.form["language"]
         )
-        db.session.add(data)
-        db.session.commit()
+        if (request.form["ISBN"] != "" and request.form["title"] != "" and
+            request.form["author"] != "" and
+                request.form["dateofpublication"] != "" and
+                request.form["noofpages"] != "" and
+                request.form["cover"] != "" and
+                request.form["language"] != ""):
+            db.session.add(data)
+            db.session.commit()
+        else:
+            flash('You have left an empty field! Fill it and try again.')
+        return redirect(url_for('addbook'))
     return redirect(url_for('addbook'))
 
 

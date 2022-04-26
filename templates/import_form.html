@@ -10,7 +10,11 @@
         <form action="/googleapisearchresuls" method="POST">
           <div class="fields">
             <span>
-             <input placeholder="ISBN" type="text" name="ISBN" />
+              <input placeholder="unspecified search (type anything about the book)" type="text" name="anything" />
+           </span>
+           <br />
+            <span>
+             <input placeholder="ISBN" type="text" name="isbn" />
           </span>
           <br />
            <span>
@@ -20,23 +24,6 @@
            <span>
              <input placeholder="book author" type="text" name="author"/>
           </span>
-          <br />
-           <span>
-             <input placeholder="number of pages" type="text" name="noofpages"/>
-          </span>
-          <br />
-           <span>
-             <input placeholder="link to the book cover" type="text" name="cover"/>
-          </span>
-          <br />
-          <span>
-            <input placeholder="language of the book" type="text" name="language"/>
-         </span>
-         <br />
-           <span>
-             <input placeholder="date of publication (dd-mm-rrrr)" type="text" name="dateofpublication"/>
-          </span>
-          </div>
           <div class="submit">
             <input class="submit" value="search" type="submit" />
           </div>
