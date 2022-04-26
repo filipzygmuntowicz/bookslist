@@ -1,0 +1,1 @@
+postgresql://jbrumzmcnaxhfu:c61da08d076268e0788d9d1e9e37034fdd9b995d96998bb0421ad67721d3972e@ec2-52-30-159-47.eu-west-1.compute.amazonaws.com:5432/d44komq59mep6g

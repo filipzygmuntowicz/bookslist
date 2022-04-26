@@ -5,17 +5,19 @@ from flask_restful import Api, Resource
 import json
 from datetime import datetime
 
+configLocal = open('configlocal.txt', 'r').read()
+configHeroku = open('configheroku.txt', 'r').read()
 
 app = Flask(__name__)
 api = Api(app)
-ENV = 'prod'
+ENV = 'dev'
 
 if ENV == 'dev':
     app.debug = True
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres123@localhost/books_page'
+    app.config['SQLALCHEMY_DATABASE_URI'] = configLocal
 else:
     app.debug = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://jbrumzmcnaxhfu:c61da08d076268e0788d9d1e9e37034fdd9b995d96998bb0421ad67721d3972e@ec2-52-30-159-47.eu-west-1.compute.amazonaws.com:5432/d44komq59mep6g'
+    app.config['SQLALCHEMY_DATABASE_URI'] = configHeroku
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
