@@ -2,8 +2,22 @@
 
 <html>
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='style.css') }}">
+<a href="/">Main page</a>
+
+<div class="container">
+  <h1>Type in the ISBN of the book you wish to import to database</h1>
+  <form action="/imported" method="POST">
+    <div class="fields">
+      <span>
+       <input placeholder="ISBN" type="text" name="ISBN" />
+    </span>
+   </div>
+   <div class="submit">
+     <input class="submit" value="Import" type="submit" />
+   </div>
 
 
+<h1>Results from googlebooks api:</h1>
 
 <table id = "books">
 <tr> 
@@ -19,7 +33,9 @@
 </body>
 
 <script>
-const sq = '{{dataq}}'
+
+let sq = JSON.parse('{{dataq | tojson | safe}}').necessery
+sq = sq.map(p => [p.ISBN, p.Title, p.Author, p.noOfPages, p.Cover, p.Language, p.dateOfPublication])
 console.log(sq)
 createTable(sq)
 function createCell(text, r){
@@ -31,12 +47,9 @@ function createCell(text, r){
 function createTable(data){
   for (let i = 0; i < data.length; i++){
     const row = document.createElement("TR");
-    Object.values(data[i]).forEach(value => createCell(value, row))
+    data[i].forEach(value => createCell(value, row))
     document.getElementById("books").appendChild(row);
   }
 }
-
-
-
 </script>
 </html>

@@ -8,7 +8,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 api = Api(app)
-ENV = 'dev'
+ENV = 'prod'
 
 if ENV == 'dev':
     app.debug = True
@@ -53,39 +53,40 @@ def requestFromGoogleBooks(query):
     http = "https://www.googleapis.com/books/v1/volumes"
     data = requests.get(http+query)
     data = data.json()
-    for x in data["items"]:
-        Author = keyNoExistHandle(x["volumeInfo"], "authors")
-        Title = keyNoExistHandle(x["volumeInfo"], "title")
-        noOfPages = keyNoExistHandle(x["volumeInfo"], "pageCount")
-        thumbnails = keyNoExistHandle(x["volumeInfo"], "imageLinks")
-        if thumbnails != "missing data":
-            Cover = thumbnails["smallThumbnail"]
-        else:
-            Cover = "missing data"
-        dateOfPublication = keyNoExistHandle(x["volumeInfo"], "publishedDate")
-        Language = keyNoExistHandle(x["volumeInfo"], "language")
-        ISBN = keyNoExistHandle(x["volumeInfo"], "industryIdentifiers")
-        if Author == "missing data":
-            Author = ["missing data"]
-        if ISBN != "missing data":
-            for x in ISBN:
-                if x["type"] == "ISBN_13":
-                    ISBN = x["identifier"]
-                    break
-        if isinstance(ISBN, str) == False:
-            for x in ISBN:
-                if x["type"] == "OTHER":
-                    ISBN = x["identifier"]
-                    break
-        books.append({
-                    "ISBN": ISBN,
-                    "Title": Title,
-                    "Author": ', '.join([str(item) for item in Author]),
-                    "noOfPages": noOfPages,
-                    "Cover": Cover,
-                    "Language": Language,
-                    "dateOfPublication": dateOfPublication}
-                    )
+    if str(data["totalItems"]) != "0":
+        for x in data["items"]:
+            Author = keyNoExistHandle(x["volumeInfo"], "authors")
+            Title = keyNoExistHandle(x["volumeInfo"], "title")
+            noOfPages = keyNoExistHandle(x["volumeInfo"], "pageCount")
+            thumbnails = keyNoExistHandle(x["volumeInfo"], "imageLinks")
+            if thumbnails != "missing data":
+                Cover = thumbnails["smallThumbnail"]
+            else:
+                Cover = "missing data"
+            dateOfPublication = keyNoExistHandle(x["volumeInfo"], "publishedDate")
+            Language = keyNoExistHandle(x["volumeInfo"], "language")
+            ISBN = keyNoExistHandle(x["volumeInfo"], "industryIdentifiers")
+            if Author == "missing data":
+                Author = ["missing data"]
+            if ISBN != "missing data":
+                for x in ISBN:
+                    if x["type"] == "ISBN_13":
+                        ISBN = x["identifier"]
+                        break
+            if isinstance(ISBN, str) == False:
+                for x in ISBN:
+                    if x["type"] == "OTHER":
+                        ISBN = x["identifier"]
+                        break
+            books.append({
+                        "ISBN": ISBN,
+                        "Title": Title,
+                        "Author": ', '.join([str(item) for item in Author]),
+                        "noOfPages": noOfPages,
+                        "Cover": Cover,
+                        "Language": Language,
+                        "dateOfPublication": dateOfPublication}
+                        )
     return books
 
 
@@ -237,8 +238,9 @@ def importbooks():
     return render_template('import_form.html')
 
 
-@app.route('/imported', methods=['POST'])
-def imported():
+@app.route('/googleapisearchresuls', methods=['POST'])
+def googleapisearchresuls():
+    datafinal = []
     if request.method == "POST":
         args = {
             "ISBN": request.form["ISBN"],
@@ -249,14 +251,35 @@ def imported():
             "Language": request.form["language"],
             "dateOfPublication": request.form["dateofpublication"]
         }
-    query = "?q="
-    for key in args.keys():
-        if args[key] != "":
-            query = query +  args[key] + "+"
-    query = query[:-1]
-    data = str(requestFromGoogleBooks(query))
-    #return data
-    return render_template('import_final_step.html', dataq=data)
+        query = "?q="
+        for key in args.keys():
+            if args[key] != "":
+                query = query + args[key] + "+"
+        query = query[:-1]
+        data = requestFromGoogleBooks(query)
+        data2 = []
+        for book in Books.query.all():
+            data2.append(book.ISBN)
+        data3 = []
+        for d in data:
+            if d["ISBN"] not in data2:
+                data3.append(d)
+        datafinal = {"necessery": data3}
+    return render_template('import_final_step.html',  dataq = datafinal)
+
+
+@app.route('/imported', methods=['POST'])
+def imported():
+    if request.method == "POST":
+        isbn = request.form["ISBN"]
+        data = requestFromGoogleBooks("?q=isbn:"+isbn)
+        for x in data:
+            if x["ISBN"] == isbn:
+                bookToAdd = Books(x["ISBN"], x["Title"], x["Author"], x["dateOfPublication"], x["noOfPages"], x["Cover"], x["Language"])
+                db.session.add(bookToAdd)
+                db.session.commit()
+                break
+        return redirect(url_for('index'))
 
 
 @app.route('/added', methods=['POST'])
