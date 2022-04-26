@@ -8,7 +8,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 api = Api(app)
-ENV = 'dev'
+ENV = 'prod'
 
 if ENV == 'dev':
     app.debug = True
