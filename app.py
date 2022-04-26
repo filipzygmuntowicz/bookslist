@@ -11,7 +11,7 @@ configHeroku = open('configheroku.txt', 'r').read()
 app = Flask(__name__)
 app.secret_key = "don't tell anyone"
 api = Api(app)
-ENV = 'prod'
+ENV = 'dev'
 
 if ENV == 'dev':
     app.debug = True
