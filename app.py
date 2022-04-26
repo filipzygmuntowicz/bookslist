@@ -104,8 +104,6 @@ def requestFromGoogleBooks(query):
 
 def addToDataBaseFromJSON(jsonData):
     for x in jsonData:
-        print(x["dateOfPublication"].strftime("%m/%d/%Y"))
-        print(x["Author"])
         data = Books(
             x["ISBN"], x["Title"], x["Author"], x["dateOfPublication"],
             x["noOfPages"], x["Cover"], x["Language"]
