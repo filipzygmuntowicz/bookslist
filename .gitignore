@@ -2,3 +2,4 @@
 __pycache__
 configlocal.txt
 configheroku.txt
+.pytest_cache
