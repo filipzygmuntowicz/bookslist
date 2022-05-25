@@ -14,10 +14,10 @@
     {% endwith %}
     <div class="container">
         <h1>Add your book by typing in the data manually</h1>
-        <form action="/added" method="POST">
+        <form action="/ api/bookslist" method="POST">
           <div class="fields">
             <span>
-             <input placeholder="ISBN" type="text" name="ISBN" />
+             <input placeholder="isbn" type="text" name="isbn" />
           </span>
           <br />
            <span>
@@ -29,7 +29,7 @@
           </span>
           <br />
            <span>
-             <input placeholder="number of pages" type="text" name="noofpages"/>
+             <input placeholder="number of pages" type="text" name="pages_number"/>
           </span>
           <br />
            <span>
@@ -41,7 +41,7 @@
          </span>
          <br />
            <span>
-             <input placeholder="date of publication (dd-mm-rrrr)" type="text" name="dateofpublication"/>
+             <input placeholder="date of publication (dd-mm-rrrr)" type="text" name="date_of_publication"/>
           </span>
           </div>
           <div class="submit">
