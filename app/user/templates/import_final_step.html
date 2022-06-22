@@ -9,7 +9,7 @@
   <form action="/imported" method="POST">
     <div class="fields">
       <span>
-       <input placeholder="ISBN" type="text" name="ISBN" />
+       <input placeholder="ISBN" type="text" name="isbn" />
     </span>
    </div>
    <div class="submit">
@@ -36,7 +36,7 @@
 
 let sq = JSON.parse('{{dataq | tojson | safe}}').necessery
 console.log(sq)
-sq = sq.map(p => [p.ISBN, p.Title, p.Author, p.noOfPages, p.Cover, p.Language, p.dateOfPublication])
+sq = sq.map(p => [p.isbn, p.title, p.author, p.number_of_pages, p.cover, p.language, p.date_of_publication])
 console.log(sq)
 createTable(sq)
 function createCell(text, r){

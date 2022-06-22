@@ -1,5 +1,7 @@
 import requests
-from flask import Blueprint, request,  render_template, redirect, url_for, flash
+from flask import Blueprint, request,  render_template, redirect, url_for, \
+    flash
+
 
 def keyNoExistHandle(dict, key):
     if key not in list(dict.keys()):
@@ -8,6 +10,7 @@ def keyNoExistHandle(dict, key):
         return dict[key]
 
 
+# def requestFromGoogleBooks(query, obj):
 def requestFromGoogleBooks(query):
     books = []
     http = "https://www.googleapis.com/books/v1/volumes"
@@ -24,8 +27,8 @@ def requestFromGoogleBooks(query):
             else:
                 cover = "missing data"
             date_of_publication = keyNoExistHandle(
-                        x["volumeInfo"], "publishedDate"
-                                                )
+                x["volumeInfo"], "publishedDate"
+            )
             language = keyNoExistHandle(x["volumeInfo"], "language")
             isbn = keyNoExistHandle(x["volumeInfo"], "industryIdentifiers")
             if author == "missing data":
@@ -41,20 +44,59 @@ def requestFromGoogleBooks(query):
                         isbn = x["identifier"]
                         break
             books.append({
-                        "isbn": str(isbn).replace('"', '').replace("'", ""),
-                        "title": str(title).replace('"', '').replace("'", ""),
-                        "author": ', '.join(
-                            [str(item).replace(
-                                '"', '').replace("'", "") for item in author]
-                            ),
-                        "noOfPages": str(pages_number).replace(
-                            '"', '').replace("'", ""),
-                        "Cover": str(cover).replace('"', '').replace("'", ""),
-                        "Language": str(language).replace('"', '').replace(
-                            "'", ""),
-                        "dateOfPublication": str(date_of_publication).replace(
-                            '"', '').replace("'", "")})
+                "isbn": str(isbn).replace('"', '').replace("'", ""),
+                "title": str(title).replace('"', '').replace("'", ""),
+                "author": ', '.join(
+                    [str(item).replace(
+                        '"', '').replace("'", "") for item in author]
+                ),
+                "date_of_publication": str(date_of_publication).replace(
+                    '"', '').replace("'", ""),
+                "pages_number": str(pages_number).replace(
+                    '"', '').replace("'", ""),
+                "cover": str(cover).replace('"', '').replace("'", ""),
+                "language": str(language).replace('"', '').replace(
+                    "'", "")
+            })
+#            books.append(obj(
+#                        str(isbn).replace('"', '').replace("'", ""),
+#                        str(title).replace('"', '').replace("'", ""),
+#                        ', '.join(
+#                            [str(item).replace(
+#                                '"', '').replace("'", "") for item in author]
+#                            ),
+#                        str(date_of_publication).replace(
+#                            '"', '').replace("'", ""),
+#                        str(pages_number).replace(
+#                            '"', '').replace("'", ""),
+#                        str(cover).replace('"', '').replace("'", ""),
+#                        str(language).replace('"', '').replace(
+#                            "'", ""),
+#                        ))
     return books
+
+
+def create_dict_for_book():
+    return {
+        "isbn": request.form["isbn"],
+        "title": request.form["title"],
+        "author": request.form["author"],
+        "date_of_publication": request.form["date_of_publication"],
+        "pages_number": request.form["pages_number"],
+        "cover": request.form["cover"],
+        "language": request.form["language"]
+    }
+
+
+def fields_non_empty():
+    if (request.form["isbn"] != "" and request.form["title"] != "" and
+            request.form["author"] != "" and
+            request.form["date_of_publication"] != "" and
+            request.form["pages_number"] != "" and
+            request.form["cover"] != "" and
+            request.form["language"] != ""):
+        return True
+    return False
 
 
 routing = Blueprint(
@@ -71,45 +113,15 @@ def editbook():
     return render_template('edit_form.html')
 
 
-@routing.route(
-    '/edited', methods=['POST']
-    )
+@routing.route('/edited', methods=['POST'])
 def edited():
     if request.method == "POST":
-        args = {
-            "ISBN": request.form["ISBN"],
-            "Title": request.form["title"],
-            "Author": request.form["author"],
-            "noOfPages": request.form["noofpages"],
-            "Cover": request.form["cover"],
-            "Language": request.form["language"],
-            "dateOfPublication": request.form["dateofpublication"]
-        }
-        if (request.form["ISBN"] != "" and request.form["title"] != "" and
-            request.form["author"] != "" and
-                request.form["dateofpublication"] != "" and
-                request.form["noofpages"] != "" and
-                request.form["cover"] != "" and
-                request.form["language"] != ""):
-            book = Book.query.filter_by(ISBN=args["ISBN"]).first()
-            for key in args.keys():
-                if args[key] != "":
-                    if key == "Title":
-                        book.Title = args[key]
-                    if key == "Author":
-                        book.Author = args[key]
-                    if key == "noOfPages":
-                        book.noOfPages = args[key]
-                    if key == "Cover":
-                        book.Cover = args[key]
-                    if key == "Language":
-                        book.Language = args[key]
-                    if key == "dateOfPublication":
-                        book.dateOfPublication = args[key]
-            db.session.commit()
+        data = create_dict_for_book()
+        if fields_non_empty():
+            requests.post(request.host_url+'api/bookslist/update', json=data)
         else:
             flash('You have left an empty field! Fill it and try again.')
-    return redirect(url_for('editbook'))
+    return redirect(url_for('.editbook'))
 
 
 @routing.route('/add')
@@ -120,24 +132,12 @@ def addbook():
 @routing.route('/added', methods=['POST'])
 def added():
     if request.method == "POST":
-        data = Books(
-            request.form["ISBN"], request.form["title"],
-            request.form["author"], request.form["dateofpublication"],
-            request.form["noofpages"], request.form["cover"],
-            request.form["language"]
-        )
-        if (request.form["ISBN"] != "" and request.form["title"] != "" and
-            request.form["author"] != "" and
-                request.form["dateofpublication"] != "" and
-                request.form["noofpages"] != "" and
-                request.form["cover"] != "" and
-                request.form["language"] != ""):
-            db.session.add(data)
-            db.session.commit()
+        if fields_non_empty():
+            data = create_dict_for_book()
+            requests.post(request.host_url+'api/bookslist', json=data)
         else:
             flash('You have left an empty field! Fill it and try again.')
-        return redirect(url_for('addbook'))
-    return redirect(url_for('addbook'))
+    return redirect(url_for('.addbook'))
 
 
 @routing.route('/import')
@@ -152,8 +152,8 @@ def googleapisearchresuls():
         args = {
             "anything": request.form["anything"],
             "isbn": request.form["isbn"],
-            "Title": request.form["title"],
-            "Author": request.form["author"],
+            "title": request.form["title"],
+            "author": request.form["author"],
         }
         query = "?q="
         if args["anything"] != "":
@@ -165,11 +165,12 @@ def googleapisearchresuls():
             query = query[:-1]
         data = requestFromGoogleBooks(query)
         data2 = []
-        for book in Books.query.all():
-            data2.append(book.ISBN)
+        books = requests.get(request.host_url+'api/bookslist').json()
+        for book in books:
+            data2.append(book["isbn"])
         data3 = []
         for d in data:
-            if d["ISBN"] not in data2:
+            if d["isbn"] not in data2:
                 data3.append(d)
         datafinal = {"necessery": data3}
     return render_template('import_final_step.html',  dataq=datafinal)
@@ -178,19 +179,13 @@ def googleapisearchresuls():
 @routing.route('/imported', methods=['POST'])
 def imported():
     if request.method == "POST":
-        isbn = request.form["ISBN"]
+        isbn = request.form["isbn"]
         data = requestFromGoogleBooks("?q=isbn:"+isbn)
         for x in data:
-            if x["ISBN"] == isbn:
-                bookToAdd = Books(
-                    x["ISBN"], x["Title"], x["Author"],
-                    x["dateOfPublication"],
-                    x["noOfPages"], x["Cover"], x["Language"]
-                    )
-                db.session.add(bookToAdd)
-                db.session.commit()
+            if x["isbn"] == isbn:
+                requests.post(request.host_url+'api/bookslist', json=x)
                 break
-        return redirect(url_for('index'))
+        return redirect(url_for('.index'))
 
 
 @routing.route('/search', methods=['POST'])

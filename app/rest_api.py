@@ -1,6 +1,7 @@
 from flask_restful import Resource, reqparse
 from flask import request
 from datetime import datetime
+from dateutil.parser import parse
 from marshmallow import (
     Schema,
     fields,
@@ -10,6 +11,21 @@ from marshmallow import (
     post_load,
     ValidationError,
 )
+
+
+def is_date(string, fuzzy=False):
+    """
+    Return whether the string can be interpreted as a date.
+
+    :param string: str, string to check for date
+    :param fuzzy: bool, ignore unknown tokens in string if True
+    """
+    try: 
+        parse(string, fuzzy=fuzzy)
+        return True
+
+    except ValueError:
+        return False
 
 
 def rest_api(db, Book):
@@ -31,13 +47,13 @@ def rest_api(db, Book):
         all_search_results = []
         for arg in args:
             if arg in acceptable:
-                search_restults_from_keyword = []
+                search_results_from_keyword = []
                 for book in all_books:
                     if args.get(arg).lower() in book[
-                            arg.capitalize()].lower():
-                        search_restults_from_keyword.append(book)
+                            arg].lower():
+                        search_results_from_keyword.append(book)
                 all_search_results.append(
-                    search_restults_from_keyword
+                    search_results_from_keyword
                 )  # get search results and store them in a nested array
         if "date1" in args or "date2" in args:
             search_results_from_dates = []
@@ -103,38 +119,51 @@ def rest_api(db, Book):
     class booksList(Resource):
         def get(self):
             return_books = []
-            json_input = 
-            #for book in Book.query.all():
-            #    return_books.append({
-            #        "isbn": book.isbn,
-            #        "title": book.title,
-            #        "author": book.author,
-            #        "pages_number": book.pages_number,
-            #        "cover": book.cover,
-            #        "language": book.language,
-            #        "date_of_publication": book.date_of_publication}
-            #    )
-            #return return_books
-https://stackoverflow.com/questions/61243848/simple-request-parsing-without-reqparse-requestparser
+            for book in Book.query.all():
+                return_books.append({
+                    "isbn": book.isbn,
+                    "title": book.title,
+                    "author": book.author,
+                    "pages_number": book.pages_number,
+                    "cover": book.cover,
+                    "language": book.language,
+                    "date_of_publication": book.date_of_publication}
+                )
+            return return_books
+#   https://stackoverflow.com/questions/61243848/simple-request-parsing-without-reqparse-requestparser
+
+        def post(self):
+            args = parser.parse_args()
+            if is_date(args["date_of_publication"]):
+                book = Book(
+                    args["isbn"], args["title"], args["author"],
+                    args["date_of_publication"],
+                    args["pages_number"], args["cover"], args["language"]
+                        )
+                db.session.add(book)
+                db.session.commit()
+            else:
+                print("Not a date!")
+
+    class booksListEdit(Resource):
         def post(self):
             args = parser.parse_args()
             print(args)
-            for arg in args:
-                print(args.get(arg))
-            #if "isbn" in args:
-            #    book = Book(args.get("isbn"), "", "", "", "", "", "")
-            #    if "title" in args:
-            #        book.title = args.get("title")
-            #    if "author" in args :
-            #        book.author = args.get("author")
-            #    if "pages_number" in args:
-            #        book.pages_number = args.get("pages_number")
-            #    if "cover" in args:
-            #        book.cover = args.get("cover")
-            #    if "language" in args:
-            #        book.language = args.get("language")
-            #    if "date_of_publication" in args:
-            #        book.date_of_publication = args.get("date_of_publication")
-            #    #db.session.commit()
-            return args
-    return booksList, booksListSearch
+            book = Book.query.filter_by(isbn=args["isbn"]).first()
+            for key in args.keys():
+                if args[key] != "":
+                    if key == "title":
+                        book.title = args[key]
+                    if key == "author":
+                        book.author = args[key]
+                    if key == "pages_number":
+                        book.pages_number = args[key]
+                    if key == "cover":
+                        book.cover = args[key]
+                    if key == "language":
+                        book.language = args[key]
+                    if key == "date_of_publication":
+                        book.date_of_publication = args[key]
+            db.session.commit()
+
+    return booksList, booksListSearch, booksListEdit
